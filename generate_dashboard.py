@@ -10,7 +10,16 @@ import warnings
 from datetime import datetime
 
 warnings.filterwarnings("ignore")
-os.environ["GOOGLE_APPLICATION_CREDENTIALS"] = "/Users/user/Desktop/JsonKey/gcp-key.json"
+
+# Support CI: write GCP key from env var to a temp file, or use local path
+if os.environ.get("GCP_KEY_JSON"):
+    import tempfile
+    _key_file = tempfile.NamedTemporaryFile(mode="w", suffix=".json", delete=False)
+    _key_file.write(os.environ["GCP_KEY_JSON"])
+    _key_file.close()
+    os.environ["GOOGLE_APPLICATION_CREDENTIALS"] = _key_file.name
+else:
+    os.environ["GOOGLE_APPLICATION_CREDENTIALS"] = "/Users/user/Desktop/JsonKey/gcp-key.json"
 
 from google.cloud import bigquery
 
